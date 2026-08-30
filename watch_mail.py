@@ -33,6 +33,15 @@ ESCALATE_AFTER = 10 * 60
 ESCALATE_REPEAT = 10 * 60
 MAX_FIRST_RUN = 5      # 첫 실행에서 과거 메일이 쏟아지는 것 방지
 
+# 알림을 보낼 보낸사람. 업무 메일은 CJ 뿐이라 나머지는 조용히 넘긴다.
+# (읽기는 계속 하되 텔레그램만 안 보낸다 — 나중에 거래처가 늘면 여기만 고치면 된다)
+NOTIFY_SENDERS = ["@cj.net"]
+
+
+def worth_notifying(sender: str) -> bool:
+    s = (sender or "").lower()
+    return any(k.lower() in s for k in NOTIFY_SENDERS)
+
 
 def load(path, default):
     try:
@@ -156,10 +165,13 @@ def main():
         preview = body_text(msg)
         part = classify(sender, subject, preview)
         item_id = f"naver-{uid.decode()}"
+        state["last_uid"] = max(state["last_uid"], int(uid))
+        if not worth_notifying(sender):
+            print(f"[건너뜀] {sender} / {subject}")   # 업무 메일이 아니면 알리지 않는다
+            continue
         notify(item_id, part, sender, subject, preview)
         # 저장소에는 내용을 남기지 않는다 — uid 와 시각만
         state["pending"][item_id] = {"uid": uid.decode(), "at": now, "last_ping": now}
-        state["last_uid"] = max(state["last_uid"], int(uid))
         print(f"[새 업무] {part} / {subject}")
 
     collect_acks(state)
