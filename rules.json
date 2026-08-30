@@ -1,0 +1,20 @@
+{
+  "_설명": "위에서부터 순서대로 검사. senders(보낸사람 주소에 포함된 문자열)가 우선, 없으면 keywords. 아무것도 안 맞으면 '기타'.",
+  "parts": [
+    {
+      "name": "CJ",
+      "senders": ["@cj.net"],
+      "keywords": ["언니네", "산지직송", "지락실", "스레파", "알쓸범잡", "선공개", "예고"]
+    },
+    {
+      "name": "마루앤코",
+      "senders": [],
+      "keywords": ["마루앤코", "maruco", "쇼츠", "BF0"]
+    },
+    {
+      "name": "삼파스",
+      "senders": [],
+      "keywords": ["삼파스", "sampas", "레퍼런스", "reference"]
+    }
+  ]
+}
