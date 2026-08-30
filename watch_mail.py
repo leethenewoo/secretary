@@ -171,20 +171,10 @@ def main():
             continue
         notify(item_id, part, sender, subject, preview)
         # 저장소에는 내용을 남기지 않는다 — uid 와 시각만
-        state["pending"][item_id] = {"uid": uid.decode(), "at": now, "last_ping": now}
         print(f"[새 업무] {part} / {subject}")
 
-    collect_acks(state)
+    # 확인 처리는 맥 비서 한 곳에서만 한다 (getUpdates 를 두 곳에서 읽으면 신호가 유실됨)
 
-    # 10분 미확인 재알림 — 제목은 여기서 다시 조회
-    for item_id, rec in state["pending"].items():
-        waited = now - rec["at"]
-        if waited >= ESCALATE_AFTER and now - rec.get("last_ping", 0) >= ESCALATE_REPEAT:
-            sender, subject = header_of(M, rec["uid"].encode())
-            notify(item_id, "미확인", sender, subject, "아직 확인하지 않은 업무입니다.",
-                   escalated=True, waited_min=int(waited // 60))
-            rec["last_ping"] = now
-            print(f"[에스컬레이션] {subject}")
 
     M.logout()
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2))
